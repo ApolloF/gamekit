@@ -1,0 +1,25 @@
+name: test
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          check-latest: true
+      - run: go vet ./...
+      - run: go test ./...
+      - name: Other platforms build
+        shell: bash
+        run: GOOS=linux go vet ./...
