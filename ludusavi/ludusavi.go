@@ -23,6 +23,20 @@ type Entry struct {
 	Aliases     []string // other names in the manifest that point to this game
 	Saves       []string // Windows save locations, with manifest placeholders (<winAppData>, <base>, …)
 	SteamCloud  bool     // the game supports Steam Cloud (not that it's in use)
+	UplayCloud  bool     // the game supports Ubisoft Connect cloud saves
+
+	// RootSaves are Windows save locations inside a store's own folder
+	// (<root>/…), such as Ubisoft Connect's savegames/<storeUserId>/<id>.
+	// They are kept apart from Saves because <root> means a different
+	// folder for every store.
+	RootSaves []RootPath
+}
+
+// RootPath is a save location below a store's folder (<root>) and the stores
+// it applies to (empty: any store).
+type RootPath struct {
+	Path   string
+	Stores []string
 }
 
 // Parse reads the manifest YAML. Alias entries (another name for a game)
@@ -45,6 +59,8 @@ func Parse(r io.Reader) ([]Entry, error) {
 	flush := func() {
 		if p != nil && cur != nil && p.relevant() {
 			cur.Saves = append(cur.Saves, p.path)
+		} else if p != nil && cur != nil && p.rootRelevant() {
+			cur.RootSaves = append(cur.RootSaves, RootPath{Path: p.path, Stores: p.stores})
 		}
 		p = nil
 	}
@@ -81,8 +97,13 @@ func Parse(r io.Reader) ([]Entry, error) {
 				alias = unquote(strings.TrimSpace(v))
 			}
 		case ind == 4 && section == "cloud":
-			if k, v, ok := strings.Cut(t, ":"); ok && strings.TrimSpace(k) == "steam" && strings.TrimSpace(v) == "true" {
-				cur.SteamCloud = true
+			if k, v, ok := strings.Cut(t, ":"); ok && strings.TrimSpace(v) == "true" {
+				switch strings.TrimSpace(k) {
+				case "steam":
+					cur.SteamCloud = true
+				case "uplay":
+					cur.UplayCloud = true
+				}
 			}
 		case ind == 4 && section == "installDir":
 			if dir := unquote(strings.TrimSuffix(strings.TrimSuffix(t, " {}"), ":")); dir != "" {
@@ -115,8 +136,13 @@ func Parse(r io.Reader) ([]Entry, error) {
 				if strings.HasPrefix(t, "- ") {
 					p.whens++
 				}
-				if k, val, ok := strings.Cut(v, ":"); ok && strings.TrimSpace(k) == "os" {
-					p.oses = append(p.oses, strings.TrimSpace(val))
+				if k, val, ok := strings.Cut(v, ":"); ok {
+					switch strings.TrimSpace(k) {
+					case "os":
+						p.oses = append(p.oses, strings.TrimSpace(val))
+					case "store":
+						p.stores = append(p.stores, strings.TrimSpace(val))
+					}
 				}
 			}
 		}
@@ -133,11 +159,12 @@ func Parse(r io.Reader) ([]Entry, error) {
 
 // pathInfo is one entry under "files" while it is being read.
 type pathInfo struct {
-	path  string
-	sub   string
-	tags  []string
-	oses  []string
-	whens int
+	path   string
+	sub    string
+	tags   []string
+	oses   []string
+	stores []string
+	whens  int
 }
 
 var winPrefixes = []string{"<winAppData>", "<winLocalAppData>", "<winDocuments>", "<home>", "<winPublic>", "<winProgramData>"}
@@ -151,22 +178,32 @@ func (p *pathInfo) relevant() bool {
 			break
 		}
 	}
-	if !ok {
-		return false
+	return ok && p.saveTagged() && p.windowsOK()
+}
+
+// rootRelevant reports whether a path below a store's folder holds saves on
+// Windows.
+func (p *pathInfo) rootRelevant() bool {
+	return strings.HasPrefix(p.path, "<root>/") && p.saveTagged() && p.windowsOK()
+}
+
+// saveTagged reports whether the path is tagged as saves (untagged counts).
+func (p *pathInfo) saveTagged() bool {
+	if len(p.tags) == 0 {
+		return true
 	}
-	if len(p.tags) > 0 {
-		save := false
-		for _, t := range p.tags {
-			if t == "save" {
-				save = true
-			}
-		}
-		if !save {
-			return false
+	for _, t := range p.tags {
+		if t == "save" {
+			return true
 		}
 	}
-	// Any os-restricted condition must allow Windows; store-only conditions
-	// (no os) apply everywhere.
+	return false
+}
+
+// windowsOK reports whether the path's conditions allow Windows. Any
+// os-restricted condition must allow Windows; store-only conditions (no os)
+// apply everywhere.
+func (p *pathInfo) windowsOK() bool {
 	if len(p.oses) > 0 && len(p.oses) >= p.whens {
 		for _, o := range p.oses {
 			if o == "windows" {

@@ -129,3 +129,61 @@ func TestParseReal(t *testing.T) {
 	}
 	t.Logf("parsed %d entries (%d with Windows saves) in %v", len(es), withSaves, time.Since(start))
 }
+
+const ubisoftSample = `---
+"Assassin's Creed Odyssey":
+  cloud:
+    uplay: true
+  files:
+    "<root>/savegames/<storeUserId>/5059":
+      tags:
+        - save
+      when:
+        - store: uplay
+    "<root>/savegames/<storeUserId>/5092":
+      tags:
+        - save
+      when:
+        - store: steam
+        - store: uplay
+    "<root>/userdata/<storeUserId>/812140/remote":
+      tags:
+        - save
+      when:
+        - os: windows
+          store: steam
+    "<root>/linux-only":
+      tags:
+        - save
+      when:
+        - os: linux
+    "<root>/config.ini":
+      tags:
+        - config
+    "<winDocuments>/Assassin's Creed Odyssey/ACOdyssey.ini":
+      tags:
+        - config
+      when:
+        - os: windows
+  steam:
+    id: 812140
+`
+
+func TestParseRootSaves(t *testing.T) {
+	es, err := Parse(strings.NewReader(ubisoftSample))
+	if err != nil || len(es) != 1 {
+		t.Fatalf("entries=%+v err=%v", es, err)
+	}
+	e := es[0]
+	if !e.UplayCloud || e.SteamCloud || len(e.Saves) != 0 {
+		t.Errorf("flags/saves: %+v", e)
+	}
+	want := []RootPath{
+		{Path: "<root>/savegames/<storeUserId>/5059", Stores: []string{"uplay"}},
+		{Path: "<root>/savegames/<storeUserId>/5092", Stores: []string{"steam", "uplay"}},
+		{Path: "<root>/userdata/<storeUserId>/812140/remote", Stores: []string{"steam"}},
+	}
+	if !reflect.DeepEqual(e.RootSaves, want) {
+		t.Errorf("root saves:\n got %+v\nwant %+v", e.RootSaves, want)
+	}
+}
