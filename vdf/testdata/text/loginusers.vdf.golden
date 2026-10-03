@@ -1,0 +1,33 @@
+{
+	"Values": {},
+	"Children": {
+		"users": {
+			"Values": {},
+			"Children": {
+				"76561197960265729": {
+					"Values": {
+						"accountname": "first",
+						"allowautologin": "1",
+						"mostrecent": "1",
+						"personaname": "First \"Quoted\" Name",
+						"rememberpassword": "1",
+						"skipofflinemodewarning": "0",
+						"timestamp": "1727894400",
+						"wantsofflinemode": "0"
+					},
+					"Children": {}
+				},
+				"76561197960265730": {
+					"Values": {
+						"accountname": "second",
+						"mostrecent": "0",
+						"personaname": "Tab\there",
+						"rememberpassword": "1",
+						"timestamp": "1700000000"
+					},
+					"Children": {}
+				}
+			}
+		}
+	}
+}

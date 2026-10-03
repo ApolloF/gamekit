@@ -30,8 +30,8 @@ const maxDepth = 32
 // disturbing what Steam put in it. Values of types this package doesn't
 // interpret (floats, pointers, colours, 64-bit numbers) are kept as raw bytes.
 type BNode struct {
-	Key  string
-	Type byte
+	Key  string   // as written; empty for the root
+	Type byte     // one of the B* type bytes
 	Str  string   // BString
 	Int  uint32   // BInt32
 	Raw  []byte   // BFloat, BPtr, BColor, BUint64, BInt64
