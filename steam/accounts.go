@@ -81,7 +81,7 @@ func Accounts(dir string, h Host) []string {
 	}
 	es, _ := os.ReadDir(filepath.Join(dir, "userdata"))
 	for _, e := range es {
-		if _, err := strconv.Atoi(e.Name()); err == nil && e.IsDir() && e.Name() != "0" {
+		if n, err := strconv.ParseUint(e.Name(), 10, 32); err == nil && n != 0 && e.IsDir() {
 			all = append(all, e.Name())
 		}
 	}
