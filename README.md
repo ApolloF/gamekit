@@ -1,6 +1,6 @@
 # gamekit
 
-Go packages for finding PC games on Windows, shared by [WaterLauncher](https://github.com/ApolloF/WaterLauncher) and [Syncer](https://github.com/ApolloF/syncer).
+Go packages for finding PC games on Windows, shared by [Seaglass](https://github.com/ApolloF/Seaglass) and [Syncer](https://github.com/ApolloF/syncer).
 
 | Package | What it does |
 |---|---|
@@ -30,9 +30,14 @@ The packages only read; nothing is downloaded or changed on their own. Writing a
 ## Develop
 
 ```bash
-go test ./...
+go vet ./... && GOOS=linux go vet ./...
+go test -race ./...
+go test ./... -update                           # rewrite the golden files in */testdata after an intended change
+go test ./vdf -run '^$' -fuzz '^FuzzParse$' -fuzztime 5m   # also FuzzQuoted, FuzzBare, FuzzParseBinary; ./ludusavi FuzzParse
 LUDUSAVI_MANIFEST=manifest.yaml go test -run ParseReal -v ./ludusavi
 ```
+
+Inputs a fuzz target found a bug with are kept in `*/testdata/fuzz` and run by every `go test`.
 
 ## License
 
