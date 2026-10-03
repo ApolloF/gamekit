@@ -3,6 +3,8 @@ package ludusavi
 import (
 	"os"
 	"reflect"
+	"slices"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -102,7 +104,36 @@ func TestParseInvalidIDs(t *testing.T) {
 
 func FuzzParse(f *testing.F) {
 	f.Add(sample)
-	f.Fuzz(func(t *testing.T, s string) { _, _ = Parse(strings.NewReader(s)) })
+	f.Add(ubisoftSample)
+	f.Fuzz(func(t *testing.T, s string) {
+		es, err := Parse(strings.NewReader(s))
+		if err != nil {
+			return
+		}
+		for _, e := range es {
+			if e.SteamID < 0 {
+				t.Fatalf("%q: steam id %d", e.Name, e.SteamID)
+			}
+			if _, err := strconv.ParseInt(e.GogID, 10, 64); e.GogID != "" && err != nil {
+				t.Fatalf("%q: gog id %q", e.Name, e.GogID)
+			}
+			for _, p := range e.Saves {
+				if !slices.ContainsFunc(winPrefixes, func(pre string) bool { return strings.HasPrefix(p, pre) }) {
+					t.Fatalf("%q: save path %q isn't a Windows location", e.Name, p)
+				}
+			}
+			for _, r := range e.RootSaves {
+				if !strings.HasPrefix(r.Path, "<root>/") {
+					t.Fatalf("%q: root save %q", e.Name, r.Path)
+				}
+				for i, st := range r.Stores {
+					if st == "" || slices.Contains(r.Stores[:i], st) {
+						t.Fatalf("%q: stores %q", e.Name, r.Stores)
+					}
+				}
+			}
+		}
+	})
 }
 
 // TestParseReal runs against the full manifest when LUDUSAVI_MANIFEST points at it.

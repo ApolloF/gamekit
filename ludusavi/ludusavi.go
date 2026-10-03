@@ -7,6 +7,7 @@ package ludusavi
 import (
 	"bufio"
 	"io"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -35,8 +36,8 @@ type Entry struct {
 // RootPath is a save location below a store's folder (<root>) and the stores
 // it applies to (empty: any store).
 type RootPath struct {
-	Path   string
-	Stores []string
+	Path   string   // starts with "<root>/"
+	Stores []string // store ids as the manifest names them: "steam", "uplay", "gog", "epic", "microsoft"
 }
 
 // Parse reads the manifest YAML. Alias entries (another name for a game)
@@ -60,7 +61,7 @@ func Parse(r io.Reader) ([]Entry, error) {
 		if p != nil && cur != nil && p.relevant() {
 			cur.Saves = append(cur.Saves, p.path)
 		} else if p != nil && cur != nil && p.rootRelevant() {
-			cur.RootSaves = append(cur.RootSaves, RootPath{Path: p.path, Stores: p.stores})
+			cur.RootSaves = append(cur.RootSaves, RootPath{Path: p.path, Stores: p.windowsStores()})
 		}
 		p = nil
 	}
@@ -124,7 +125,7 @@ func Parse(r io.Reader) ([]Entry, error) {
 			}
 		case section == "files" && ind == 4:
 			flush()
-			p = &pathInfo{path: unquote(strings.TrimSuffix(t, ":"))}
+			p = &pathInfo{path: unquote(strings.TrimSuffix(strings.TrimSuffix(t, " {}"), ":"))}
 		case section == "files" && p != nil && ind == 6:
 			p.sub = strings.TrimSuffix(t, ":")
 		case section == "files" && p != nil && ind >= 8:
@@ -133,15 +134,16 @@ func Parse(r io.Reader) ([]Entry, error) {
 			case "tags":
 				p.tags = append(p.tags, v)
 			case "when":
-				if strings.HasPrefix(t, "- ") {
-					p.whens++
+				if strings.HasPrefix(t, "- ") || len(p.whens) == 0 {
+					p.whens = append(p.whens, condition{})
 				}
+				w := &p.whens[len(p.whens)-1]
 				if k, val, ok := strings.Cut(v, ":"); ok {
 					switch strings.TrimSpace(k) {
 					case "os":
-						p.oses = append(p.oses, strings.TrimSpace(val))
+						w.os = strings.TrimSpace(val)
 					case "store":
-						p.stores = append(p.stores, strings.TrimSpace(val))
+						w.store = strings.TrimSpace(val)
 					}
 				}
 			}
@@ -159,13 +161,19 @@ func Parse(r io.Reader) ([]Entry, error) {
 
 // pathInfo is one entry under "files" while it is being read.
 type pathInfo struct {
-	path   string
-	sub    string
-	tags   []string
-	oses   []string
-	stores []string
-	whens  int
+	path  string
+	sub   string
+	tags  []string
+	whens []condition
 }
+
+// condition is one item of a path's "when" list; "" means any.
+type condition struct {
+	os, store string
+}
+
+// onWindows reports whether the condition can hold on Windows.
+func (c condition) onWindows() bool { return c.os == "" || c.os == "windows" }
 
 var winPrefixes = []string{"<winAppData>", "<winLocalAppData>", "<winDocuments>", "<home>", "<winPublic>", "<winProgramData>"}
 
@@ -200,19 +208,37 @@ func (p *pathInfo) saveTagged() bool {
 	return false
 }
 
-// windowsOK reports whether the path's conditions allow Windows. Any
-// os-restricted condition must allow Windows; store-only conditions (no os)
-// apply everywhere.
+// windowsOK reports whether the path applies on Windows: it has no
+// conditions, or one of them allows Windows (store-only conditions apply
+// everywhere).
 func (p *pathInfo) windowsOK() bool {
-	if len(p.oses) > 0 && len(p.oses) >= p.whens {
-		for _, o := range p.oses {
-			if o == "windows" {
-				return true
-			}
-		}
-		return false
+	if len(p.whens) == 0 {
+		return true
 	}
-	return true
+	for _, c := range p.whens {
+		if c.onWindows() {
+			return true
+		}
+	}
+	return false
+}
+
+// windowsStores lists the stores the path applies to on Windows; nil if any.
+// A condition for another OS doesn't restrict the stores on Windows.
+func (p *pathInfo) windowsStores() []string {
+	var stores []string
+	for _, c := range p.whens {
+		if !c.onWindows() {
+			continue
+		}
+		if c.store == "" {
+			return nil
+		}
+		if !slices.Contains(stores, c.store) {
+			stores = append(stores, c.store)
+		}
+	}
+	return stores
 }
 
 func unquote(s string) string {
