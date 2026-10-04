@@ -15,23 +15,19 @@ func TestSigned(t *testing.T) {
 	if Signed(filepath.Join(t.TempDir(), "missing.dll")) || Signed("bad\x00path") {
 		t.Error("a missing file must not count as signed")
 	}
-	// A file with an embedded signature, if this PC has one of them.
-	candidates := []string{
-		filepath.Join(os.Getenv("ProgramFiles(x86)"), "Microsoft", "Edge", "Application", "msedge.exe"),
-		filepath.Join(os.Getenv("ProgramFiles"), "Microsoft", "Edge", "Application", "msedge.exe"),
+	// Signed means signed by Valve, so only a Valve binary can pass: Steam's
+	// own steam.exe, when Steam is installed (it isn't on CI).
+	d := Dir()
+	if d == "" {
+		t.Skip("Steam isn't installed: no Valve-signed file to check against")
 	}
-	if d := Dir(); d != "" {
-		candidates = append([]string{filepath.Join(d, "steam.exe")}, candidates...)
+	steamExe := filepath.Join(d, "steam.exe")
+	if _, err := os.Stat(steamExe); err != nil {
+		t.Skip("no steam.exe to check against")
 	}
-	for _, p := range candidates {
-		if _, err := os.Stat(p); err == nil {
-			if !Signed(p) {
-				t.Errorf("%s should be signed", p)
-			}
-			return
-		}
+	if !Signed(steamExe) {
+		t.Errorf("%s should be signed", steamExe)
 	}
-	t.Log("no signed file to check against")
 }
 
 // The registry readers depend on this PC; they must not fail without Steam.
