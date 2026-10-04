@@ -3,6 +3,7 @@ package steam
 import (
 	"os"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 	"unsafe"
@@ -52,9 +53,13 @@ var sigCache struct {
 	m map[string]bool
 }
 
-// Signed reports whether the file carries a valid Authenticode signature.
-// Steam's steam_api DLLs are signed by Valve; emulator DLLs aren't, and a
-// patched one fails the hash check. No revocation or network lookups.
+// valveSigner is the signer name on Valve's Authenticode certificate.
+const valveSigner = "Valve Corp."
+
+// Signed reports whether the file carries a valid Authenticode signature
+// made by Valve. Steam's steam_api DLLs are signed by Valve; emulator DLLs
+// aren't, or are signed by someone else, and a patched one fails the hash
+// check. No revocation or network lookups.
 func Signed(path string) bool {
 	fi, err := os.Stat(path)
 	if err != nil {
@@ -67,6 +72,27 @@ func Signed(path string) bool {
 	if ok {
 		return v
 	}
+	v = signedBy(path, trusted, signerName, valveSigner)
+	sigCache.Lock()
+	if sigCache.m == nil {
+		sigCache.m = map[string]bool{}
+	}
+	sigCache.m[key] = v
+	sigCache.Unlock()
+	return v
+}
+
+// signedBy reports whether path has a valid signature (trusted) whose signer
+// (signer) is the wanted one.
+func signedBy(path string, trusted func(string) bool, signer func(string) string, want string) bool {
+	if !trusted(path) {
+		return false
+	}
+	return strings.EqualFold(strings.TrimSpace(signer(path)), want)
+}
+
+// trusted reports whether WinVerifyTrust accepts the file's signature.
+func trusted(path string) bool {
 	p16, err := windows.UTF16PtrFromString(path)
 	if err != nil {
 		return false
@@ -86,12 +112,5 @@ func Signed(path string) bool {
 	err = windows.WinVerifyTrustEx(windows.InvalidHWND, &windows.WINTRUST_ACTION_GENERIC_VERIFY_V2, data)
 	data.StateAction = windows.WTD_STATEACTION_CLOSE
 	_ = windows.WinVerifyTrustEx(windows.InvalidHWND, &windows.WINTRUST_ACTION_GENERIC_VERIFY_V2, data)
-	v = err == nil
-	sigCache.Lock()
-	if sigCache.m == nil {
-		sigCache.m = map[string]bool{}
-	}
-	sigCache.m[key] = v
-	sigCache.Unlock()
-	return v
+	return err == nil
 }

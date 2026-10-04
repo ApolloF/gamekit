@@ -174,7 +174,7 @@ func (p *pathInfo) relevant() bool {
 	ok := false
 	for _, pre := range winPrefixes {
 		if strings.HasPrefix(p.path, pre) {
-			ok = true
+			ok = safeBelow(p.path, pre)
 			break
 		}
 	}
@@ -184,7 +184,27 @@ func (p *pathInfo) relevant() bool {
 // rootRelevant reports whether a path below a store's folder holds saves on
 // Windows.
 func (p *pathInfo) rootRelevant() bool {
-	return strings.HasPrefix(p.path, "<root>/") && p.saveTagged() && p.windowsOK()
+	return strings.HasPrefix(p.path, "<root>/") && safeBelow(p.path, "<root>") && p.saveTagged() && p.windowsOK()
+}
+
+// safeBelow reports whether path, which starts with the placeholder pre,
+// stays below it. The manifest is community-edited, so a path may try to
+// climb out ("<winAppData>/../../Windows"), or switch to another root
+// ("<winAppData>C:/x", "<winAppData>//server/share").
+func safeBelow(path, pre string) bool {
+	rest := strings.TrimPrefix(path, pre)
+	if rest == "" {
+		return true
+	}
+	if rest[0] != '/' || strings.HasPrefix(rest, "//") || strings.Contains(rest, ":") {
+		return false
+	}
+	for _, seg := range strings.FieldsFunc(rest, func(r rune) bool { return r == '/' || r == '\\' }) {
+		if seg == ".." {
+			return false
+		}
+	}
+	return true
 }
 
 // saveTagged reports whether the path is tagged as saves (untagged counts).
