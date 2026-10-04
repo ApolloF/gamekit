@@ -1,6 +1,9 @@
 package steam
 
 import (
+	"crypto/x509"
+	"crypto/x509/pkix"
+	"slices"
 	"unsafe"
 
 	"golang.org/x/sys/windows"
@@ -25,44 +28,43 @@ type signerInfo struct {
 	SerialNumber windows.CryptIntegerBlob
 }
 
-// signerName returns the display name of the certificate that signed the
-// file's embedded Authenticode signature, or "" if there is none.
-func signerName(path string) string {
+// signerSubject returns the subject of the certificate that signed the
+// file's embedded Authenticode signature; false if there is none.
+func signerSubject(path string) (pkix.Name, bool) {
 	p16, err := windows.UTF16PtrFromString(path)
 	if err != nil {
-		return ""
+		return pkix.Name{}, false
 	}
 	var store, msg windows.Handle
 	err = windows.CryptQueryObject(windows.CERT_QUERY_OBJECT_FILE, unsafe.Pointer(p16),
 		windows.CERT_QUERY_CONTENT_FLAG_PKCS7_SIGNED_EMBED, windows.CERT_QUERY_FORMAT_FLAG_BINARY,
 		0, nil, nil, nil, &store, &msg, nil)
 	if err != nil {
-		return ""
+		return pkix.Name{}, false
 	}
 	defer windows.CertCloseStore(store, 0)
 	defer procCryptMsgClose.Call(uintptr(msg))
 
 	var size uint32
 	if r, _, _ := procCryptMsgGetParam.Call(uintptr(msg), cmsgSignerInfoParam, 0, 0, uintptr(unsafe.Pointer(&size))); r == 0 || size < uint32(unsafe.Sizeof(signerInfo{})) {
-		return ""
+		return pkix.Name{}, false
 	}
 	buf := make([]byte, size)
 	if r, _, _ := procCryptMsgGetParam.Call(uintptr(msg), cmsgSignerInfoParam, 0, uintptr(unsafe.Pointer(&buf[0])), uintptr(unsafe.Pointer(&size))); r == 0 {
-		return ""
+		return pkix.Name{}, false
 	}
 	si := (*signerInfo)(unsafe.Pointer(&buf[0]))
 	want := windows.CertInfo{Issuer: si.Issuer, SerialNumber: si.SerialNumber}
 	cert, err := windows.CertFindCertificateInStore(store, encoding, 0, windows.CERT_FIND_SUBJECT_CERT, unsafe.Pointer(&want), nil)
 	if err != nil {
-		return ""
+		return pkix.Name{}, false
 	}
 	defer windows.CertFreeCertificateContext(cert)
 
-	n := windows.CertGetNameString(cert, windows.CERT_NAME_SIMPLE_DISPLAY_TYPE, 0, nil, nil, 0)
-	if n <= 1 {
-		return ""
+	// Clone: the parsed certificate points into its input, which is freed on return.
+	c, err := x509.ParseCertificate(slices.Clone(unsafe.Slice(cert.EncodedCert, cert.Length)))
+	if err != nil {
+		return pkix.Name{}, false
 	}
-	name := make([]uint16, n)
-	windows.CertGetNameString(cert, windows.CERT_NAME_SIMPLE_DISPLAY_TYPE, 0, nil, &name[0], n)
-	return windows.UTF16ToString(name)
+	return c.Subject, true
 }

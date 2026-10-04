@@ -1,7 +1,9 @@
 package steam
 
 import (
+	"crypto/x509/pkix"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -53,8 +55,11 @@ var sigCache struct {
 	m map[string]bool
 }
 
-// valveSigner is the signer name on Valve's Authenticode certificate.
-const valveSigner = "Valve Corp."
+// valveNames are the names on Valve's Authenticode certificates, both as CN
+// and O: "Valve Corp." on the Steam client and newer steam_api DLLs (DigiCert
+// Trusted G4 Code Signing CA, 2024), "Valve" on older steam_api DLLs that
+// games still ship (DigiCert SHA2 Assured ID Code Signing CA, 2018).
+var valveNames = []string{"Valve Corp.", "Valve"}
 
 // Signed reports whether the file carries a valid Authenticode signature
 // made by Valve. Steam's steam_api DLLs are signed by Valve; emulator DLLs
@@ -72,7 +77,7 @@ func Signed(path string) bool {
 	if ok {
 		return v
 	}
-	v = signedBy(path, trusted, signerName, valveSigner)
+	v = signedBy(path, trusted, signerSubject)
 	sigCache.Lock()
 	if sigCache.m == nil {
 		sigCache.m = map[string]bool{}
@@ -83,12 +88,33 @@ func Signed(path string) bool {
 }
 
 // signedBy reports whether path has a valid signature (trusted) whose signer
-// (signer) is the wanted one.
-func signedBy(path string, trusted func(string) bool, signer func(string) string, want string) bool {
+// certificate (subject) belongs to Valve.
+func signedBy(path string, trusted func(string) bool, subject func(string) (pkix.Name, bool)) bool {
 	if !trusted(path) {
 		return false
 	}
-	return strings.EqualFold(strings.TrimSpace(signer(path)), want)
+	s, ok := subject(path)
+	return ok && isValve(s)
+}
+
+// isValve reports whether a certificate subject is Valve's: CN and every O
+// are Valve names and the country is US. Requiring O as well as CN keeps out
+// a certificate that merely calls itself Valve in one field.
+func isValve(s pkix.Name) bool {
+	if !valveName(s.CommonName) || len(s.Organization) == 0 || !slices.Equal(s.Country, []string{"US"}) {
+		return false
+	}
+	for _, o := range s.Organization {
+		if !valveName(o) {
+			return false
+		}
+	}
+	return true
+}
+
+func valveName(s string) bool {
+	s = strings.TrimSpace(s)
+	return slices.ContainsFunc(valveNames, func(v string) bool { return strings.EqualFold(s, v) })
 }
 
 // trusted reports whether WinVerifyTrust accepts the file's signature.
