@@ -1,0 +1,47 @@
+"shortcuts" {
+	"0" {
+		"appid" int32 2587581565
+		"AppName" string "Some Game"
+		"Exe" string "\"C:\\Games\\Some Game\\game.exe\""
+		"StartDir" string "\"C:\\Games\\Some Game\\\""
+		"icon" string ""
+		"ShortcutPath" string ""
+		"LaunchOptions" string ""
+		"IsHidden" int32 0
+		"AllowDesktopConfig" int32 1
+		"AllowOverlay" int32 1
+		"OpenVR" int32 0
+		"Devkit" int32 0
+		"DevkitGameID" string ""
+		"DevkitOverrideAppID" int32 0
+		"LastPlayTime" int32 1700000000
+		"FlatpakAppID" string ""
+		"sortas" string ""
+		"tags" {
+			"0" string "favorite"
+		}
+	}
+	"1" {
+		"appid" int32 3237998081
+		"AppName" string "Ünïcödé — Spiel"
+		"Exe" string "\"D:\\Spiele\\Ü\\run.exe\""
+		"StartDir" string "\"D:\\Spiele\\Ü\\\""
+		"icon" string ""
+		"ShortcutPath" string ""
+		"LaunchOptions" string "-windowed -lang=de"
+		"IsHidden" int32 1
+		"AllowDesktopConfig" int32 1
+		"AllowOverlay" int32 1
+		"OpenVR" int32 0
+		"Devkit" int32 0
+		"DevkitGameID" string ""
+		"DevkitOverrideAppID" int32 0
+		"LastPlayTime" int32 0
+		"FlatpakAppID" string ""
+		"sortas" string ""
+		"tags" {
+			"0" string "Installed locally"
+			"1" string "Non-Steam"
+		}
+	}
+}

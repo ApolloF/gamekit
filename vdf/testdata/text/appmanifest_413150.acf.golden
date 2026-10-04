@@ -1,0 +1,49 @@
+{
+	"Values": {},
+	"Children": {
+		"appstate": {
+			"Values": {
+				"allowotherdownloadswhilerunning": "0",
+				"appid": "413150",
+				"autoupdatebehavior": "0",
+				"buildid": "14709281",
+				"installdir": "Stardew Valley",
+				"lastowner": "76561197960265729",
+				"lastupdated": "1717171717",
+				"launcherpath": "C:\\Program Files (x86)\\Steam\\steam.exe",
+				"name": "Stardew Valley",
+				"scheduledautoupdate": "0",
+				"sizeondisk": "643014561",
+				"stagingsize": "0",
+				"stateflags": "4",
+				"universe": "1"
+			},
+			"Children": {
+				"installeddepots": {
+					"Values": {},
+					"Children": {
+						"413151": {
+							"Values": {
+								"manifest": "5541828129893467395",
+								"size": "643014561"
+							},
+							"Children": {}
+						}
+					}
+				},
+				"mountedconfig": {
+					"Values": {
+						"language": "english"
+					},
+					"Children": {}
+				},
+				"userconfig": {
+					"Values": {
+						"language": "english"
+					},
+					"Children": {}
+				}
+			}
+		}
+	}
+}

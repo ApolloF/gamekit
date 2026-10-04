@@ -1,0 +1,37 @@
+[
+	{
+		"ID": 1145360,
+		"Name": "Hades",
+		"Dir": "steamapps/common/Hades",
+		"Installed": true,
+		"Size": 15388470845
+	},
+	{
+		"ID": 228980,
+		"Name": "Steamworks Common Redistributables",
+		"Dir": "steamapps/common/Steamworks Shared",
+		"Installed": true,
+		"Size": 352787195
+	},
+	{
+		"ID": 413150,
+		"Name": "Stardew Valley",
+		"Dir": "steamapps/common/Stardew Valley",
+		"Installed": true,
+		"Size": 643014561
+	},
+	{
+		"ID": 620,
+		"Name": "Portal 2",
+		"Dir": "steamapps/common/Portal 2",
+		"Installed": false,
+		"Size": 0
+	},
+	{
+		"ID": 70,
+		"Name": "Half-Life",
+		"Dir": "",
+		"Installed": false,
+		"Size": 0
+	}
+]

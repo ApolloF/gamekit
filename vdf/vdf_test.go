@@ -40,7 +40,60 @@ func TestMalformed(t *testing.T) {
 
 func FuzzParse(f *testing.F) {
 	f.Add(`"AppState" { "appid" "1" "name" "x" }`)
-	f.Fuzz(func(t *testing.T, s string) { _ = Parse(strings.NewReader(s)) })
+	f.Add("\xef\xbb\xbf// c\n\"k\" \"v\" [$WIN32] p /x { a b } } {")
+	f.Fuzz(func(t *testing.T, s string) {
+		var check func(n *Node, depth int)
+		check = func(n *Node, depth int) {
+			if depth > maxNesting {
+				t.Fatalf("nested %d levels", depth)
+			}
+			for k := range n.Values {
+				if strings.ToLower(k) != k {
+					t.Fatalf("key %q not lower-cased", k)
+				}
+			}
+			for k, c := range n.Children {
+				if strings.ToLower(k) != k || c == nil {
+					t.Fatalf("child %q: %v", k, c)
+				}
+				check(c, depth+1)
+			}
+		}
+		check(Parse(strings.NewReader(s)), 1)
+	})
+}
+
+// FuzzBare checks that a bare (unquoted) value keeps every character.
+func FuzzBare(f *testing.F) {
+	f.Add("value")
+	f.Add("/usr/bin")
+	f.Fuzz(func(t *testing.T, v string) {
+		if v == "" || strings.ContainsAny(v, " \t\r\n{}\"") || strings.HasPrefix(v, "//") || isConditional(v) {
+			return
+		}
+		if got := Parse(strings.NewReader("k " + v)).Value("k"); got != v {
+			t.Fatalf("bare %q parsed as %q", v, got)
+		}
+	})
+}
+
+// FuzzQuoted checks that any key and value survive quoting and escaping.
+func FuzzQuoted(f *testing.F) {
+	f.Add("Path", `C:\Program Files (x86)\Steam`)
+	f.Add("", "")
+	f.Add("[$WIN32]", "\"//\"\n{}")
+	quote := func(s string) string {
+		return `"` + strings.NewReplacer(`\`, `\\`, `"`, `\"`).Replace(s) + `"`
+	}
+	f.Fuzz(func(t *testing.T, k, v string) {
+		n := Parse(strings.NewReader(`"o" { ` + quote(k) + "\t" + quote(v) + ` } "after" "1"`))
+		if got := n.Get("o").Value(k); got != v {
+			t.Fatalf("value of %q = %q, want %q", k, got, v)
+		}
+		if len(n.Get("o").Values) != 1 || n.Value("after") != "1" {
+			t.Fatalf("parsed %+v / %+v", n.Get("o"), n)
+		}
+	})
 }
 
 // A shortcuts.vdf as Steam writes it: one shortcut with every value type

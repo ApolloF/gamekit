@@ -1,0 +1,19 @@
+// A hand-written KeyValues file with what Steam and game files do but
+// Steam's own config files rarely use.
+"Resource"
+{
+	// Bare (unquoted) keys and values.
+	Bare		value
+	path		/usr/share/steam
+	"Mixed"		bare
+	"Duplicate"	"first"
+	"duplicate"	"second"
+	// Platform conditionals are ignored.
+	"Font"		"Tahoma"	[$WIN32]
+	"Font"		"Verdana"	[$OSX]
+	"Size"		"12"
+	"Inline" { "a" "1" "b" "2" }
+	"Empty" {}
+	"Escapes"	"back\\slash, \"quote\", new\nline"
+	"Url"		"https://example.com/a//b"
+}

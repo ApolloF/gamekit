@@ -1,0 +1,162 @@
+[
+	{
+		"Name": "Assassin's Creed Odyssey",
+		"SteamID": 812140,
+		"GogID": "",
+		"InstallDirs": [
+			"Assassins Creed Odyssey"
+		],
+		"Aliases": null,
+		"Saves": null,
+		"SteamCloud": false,
+		"UplayCloud": true,
+		"RootSaves": [
+			{
+				"Path": "<root>/savegames/<storeUserId>/5059",
+				"Stores": [
+					"uplay"
+				]
+			},
+			{
+				"Path": "<root>/savegames/<storeUserId>/5092",
+				"Stores": [
+					"steam",
+					"uplay"
+				]
+			}
+		]
+	},
+	{
+		"Name": "DiRT 4",
+		"SteamID": 421020,
+		"GogID": "",
+		"InstallDirs": [
+			"DiRT 4"
+		],
+		"Aliases": null,
+		"Saves": null,
+		"SteamCloud": true,
+		"UplayCloud": false,
+		"RootSaves": [
+			{
+				"Path": "<root>/userdata/<storeUserId>/421020",
+				"Stores": [
+					"steam"
+				]
+			}
+		]
+	},
+	{
+		"Name": "Hades",
+		"SteamID": 1145360,
+		"GogID": "",
+		"InstallDirs": [
+			"Hades"
+		],
+		"Aliases": null,
+		"Saves": [
+			"<winDocuments>/Saved Games/Hades",
+			"<winLocalAppData>/Packages/SupergiantGamesLLC.Hades_q53c1yqmx7pha/SystemAppData/wgs"
+		],
+		"SteamCloud": true,
+		"UplayCloud": false,
+		"RootSaves": null
+	},
+	{
+		"Name": "Halls of Torment",
+		"SteamID": 2218750,
+		"GogID": "",
+		"InstallDirs": [
+			"Halls of Torment"
+		],
+		"Aliases": null,
+		"Saves": null,
+		"SteamCloud": true,
+		"UplayCloud": false,
+		"RootSaves": [
+			{
+				"Path": "<root>/userdata/<storeUserId>/2218750/remote",
+				"Stores": [
+					"steam"
+				]
+			}
+		]
+	},
+	{
+		"Name": "Stardew Valley",
+		"SteamID": 413150,
+		"GogID": "1453375253",
+		"InstallDirs": [
+			"Stardew Valley"
+		],
+		"Aliases": null,
+		"Saves": [
+			"<winAppData>/StardewValley/Saves"
+		],
+		"SteamCloud": true,
+		"UplayCloud": false,
+		"RootSaves": null
+	},
+	{
+		"Name": "The Witcher 3: Wild Hunt",
+		"SteamID": 292030,
+		"GogID": "1495134320",
+		"InstallDirs": [
+			"The Witcher 3"
+		],
+		"Aliases": null,
+		"Saves": [
+			"<winDocuments>/The Witcher 3/gamesaves/*.png",
+			"<winDocuments>/The Witcher 3/gamesaves/*.sav"
+		],
+		"SteamCloud": true,
+		"UplayCloud": false,
+		"RootSaves": null
+	},
+	{
+		"Name": "Ultrakill",
+		"SteamID": 1229490,
+		"GogID": "1476171749",
+		"InstallDirs": [
+			"ULTRAKILL"
+		],
+		"Aliases": null,
+		"Saves": null,
+		"SteamCloud": true,
+		"UplayCloud": false,
+		"RootSaves": [
+			{
+				"Path": "<root>/steamapps/common/ULTRAKILL/Saves",
+				"Stores": [
+					"steam"
+				]
+			}
+		]
+	},
+	{
+		"Name": "Hitman: World of Assassination",
+		"SteamID": 1659040,
+		"GogID": "",
+		"InstallDirs": [
+			"HITMAN 3"
+		],
+		"Aliases": [
+			"HITMAN 3",
+			"HITMAN World of Assassination"
+		],
+		"Saves": [
+			"<winAppData>/IO Interactive/Epic/<storeUserId>/HITMAN3",
+			"<winLocalAppData>/Packages/IOInteractiveAS.PC-HITMAN3-BaseGame_6h0y724g59e1w/SystemAppData/wgs"
+		],
+		"SteamCloud": true,
+		"UplayCloud": false,
+		"RootSaves": [
+			{
+				"Path": "<root>/userdata/<storeUserId>/1659040/remote",
+				"Stores": [
+					"steam"
+				]
+			}
+		]
+	}
+]

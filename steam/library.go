@@ -28,7 +28,8 @@ const (
 )
 
 // Libraries returns Steam's own folder plus every library folder listed in
-// its libraryfolders.vdf.
+// its libraryfolders.vdf, in the current format ("1" { "path" "D:\\Lib" })
+// or the one Steam used before 2021 ("1" "D:\\Lib").
 func Libraries(root string) []string {
 	if !filepath.IsAbs(root) {
 		return nil
@@ -36,8 +37,21 @@ func Libraries(root string) []string {
 	libs := []string{filepath.Clean(root)}
 	seen := map[string]bool{strings.ToLower(libs[0]): true}
 	var extra []string
-	for _, lib := range readVDF(filepath.Join(root, "steamapps", "libraryfolders.vdf")).Get("libraryfolders").Kids() {
-		dir := filepath.Clean(lib.Value("path"))
+	lf := readVDF(filepath.Join(root, "steamapps", "libraryfolders.vdf")).Get("libraryfolders")
+	var paths []string
+	for _, lib := range lf.Kids() {
+		paths = append(paths, lib.Value("path"))
+	}
+	if lf != nil {
+		for k, v := range lf.Values {
+			if _, err := strconv.ParseUint(k, 10, 32); err == nil {
+				paths = append(paths, v)
+			}
+		}
+	}
+	sort.Strings(paths) // the vdf's maps have no order; keep the result stable
+	for _, p := range paths {
+		dir := filepath.Clean(p)
 		if key := strings.ToLower(dir); filepath.IsAbs(dir) && !seen[key] {
 			extra = append(extra, dir)
 			seen[key] = true

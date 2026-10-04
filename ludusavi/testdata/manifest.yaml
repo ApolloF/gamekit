@@ -1,0 +1,376 @@
+---
+# A slice of the Ludusavi manifest (github.com/mtkennerly/ludusavi-manifest, 2026-10-03).
+HITMAN 3:
+  alias: "Hitman: World of Assassination"
+HITMAN World of Assassination:
+  alias: "Hitman: World of Assassination"
+"Assassin's Creed Odyssey":
+  cloud:
+    uplay: true
+  files:
+    "<root>/savegames/<storeUserId>/5059":
+      tags:
+        - save
+      when:
+        - store: uplay
+    "<root>/savegames/<storeUserId>/5092":
+      tags:
+        - save
+      when:
+        - store: steam
+        - store: uplay
+    "<winDocuments>/Assassin's Creed Odyssey/ACOdyssey.ini":
+      tags:
+        - config
+      when:
+        - os: windows
+  id:
+    lutris: assassins-creed-odyssey
+    steamExtra:
+      - 937890
+      - 937891
+      - 937892
+  installDir:
+    Assassins Creed Odyssey: {}
+  steam:
+    id: 812140
+DiRT 4:
+  cloud:
+    steam: true
+  files:
+    "<root>/userdata/<storeUserId>/421020":
+      tags:
+        - save
+      when:
+        - os: windows
+          store: steam
+        - os: linux
+          store: steam
+    "<winDocuments>/My Games/DiRT 4/hardwaresettings":
+      tags:
+        - config
+      when:
+        - os: windows
+  id:
+    lutris: dirt-4
+  installDir:
+    DiRT 4: {}
+  launch:
+    "<base>/DiRT 4.app":
+      - when:
+          - os: mac
+            store: steam
+    "<base>/Dirt4.sh":
+      - when:
+          - bit: 64
+            os: linux
+            store: steam
+    "<base>/dirt4.exe":
+      - when:
+          - os: windows
+            store: steam
+  steam:
+    id: 421020
+Hades:
+  cloud:
+    epic: true
+    steam: true
+  files:
+    "<home>/Library/Application Support/Supergiant Games/Hades":
+      tags:
+        - config
+        - save
+      when:
+        - os: mac
+    "<winDocuments>/Saved Games/Hades":
+      tags:
+        - config
+        - save
+      when:
+        - os: windows
+    "<winLocalAppData>/Packages/SupergiantGamesLLC.Hades_q53c1yqmx7pha/SystemAppData/wgs":
+      tags:
+        - config
+        - save
+      when:
+        - os: windows
+          store: microsoft
+  id:
+    lutris: hades
+    steamExtra:
+      - 1206340
+  installDir:
+    Hades: {}
+  launch:
+    "<base>/Game.macOS.app/Contents/MacOS/Game.macOS":
+      - arguments: /steampowered /DirectLoadShell=true /DebugMessages=false /DebugKeysEnabled=false /ShowFPS=false /PerfDashWarnings=false /VerboseScriptLogging=false /UnsafeDebugKeysEnabled=false /UseDevSaves=false /UseInternalBugReporter=false /LiveCreateTextures=false
+        when:
+          - os: mac
+            store: steam
+    "<base>/x86/Hades.exe":
+      - arguments: "/c=..\\ /steampowered /DirectLoadShell=true /DebugMessages=false /DebugKeysEnabled=false /ShowFPS=false /PerfDashWarnings=false /VerboseScriptLogging=false /UnsafeDebugKeysEnabled=false /LiveCreateTextures=false"
+        when:
+          - bit: 32
+            os: windows
+            store: steam
+        workingDir: "<base>/x86"
+  steam:
+    id: 1145360
+Halls of Torment:
+  cloud:
+    steam: true
+  files:
+    "<home>/.local/share/HallsOfTorment/settings.json":
+      tags:
+        - config
+      when:
+        - os: linux
+    "<root>/userdata/<storeUserId>/2218750/remote":
+      tags:
+        - save
+      when:
+        - store: steam
+        - os: windows
+          store: steam
+        - os: linux
+          store: steam
+    "<winAppData>/HallsOfTorment/settings.json":
+      tags:
+        - config
+      when:
+        - os: windows
+  id:
+    lutris: halls-of-torment
+    steamExtra:
+      - 2279200
+      - 2316660
+      - 3386980
+      - 3464980
+      - 3919420
+  installDir:
+    Halls of Torment: {}
+  launch:
+    "<base>/HallsOfTorment.exe":
+      - when:
+          - os: windows
+            store: steam
+      - arguments: "--rendering-driver opengl3"
+        when:
+          - bit: 64
+            os: windows
+            store: steam
+    "<base>/HallsOfTorment.x86_64":
+      - when:
+          - os: linux
+            store: steam
+    "<base>/force_gpu.bat":
+      - when:
+          - bit: 64
+            os: windows
+            store: steam
+  steam:
+    id: 2218750
+Stardew Valley:
+  cloud:
+    gog: true
+    steam: true
+  files:
+    "<home>/.config/StardewValley":
+      tags:
+        - config
+      when:
+        - os: mac
+    "<home>/.config/StardewValley/Saves":
+      tags:
+        - save
+      when:
+        - os: mac
+    "<winAppData>/StardewValley/Saves":
+      tags:
+        - save
+      when:
+        - os: windows
+    "<winAppData>/StardewValley/default_options":
+      tags:
+        - config
+      when:
+        - os: windows
+    "<xdgConfig>/StardewValley":
+      tags:
+        - config
+      when:
+        - os: linux
+    "<xdgConfig>/StardewValley/Saves":
+      tags:
+        - save
+      when:
+        - os: linux
+  gog:
+    id: 1453375253
+  id:
+    gogExtra:
+      - 1541385446
+  installDir:
+    Stardew Valley: {}
+  launch:
+    "<base>/Contents/MacOS/StardewValley":
+      - when:
+          - os: mac
+            store: steam
+        workingDir: "<base>/Contents"
+    "<base>/Stardew Valley.exe":
+      - when:
+          - os: windows
+            store: steam
+    "<base>/StardewValley":
+      - arguments: STEAM_RUNTIME=0
+        when:
+          - os: linux
+            store: steam
+  steam:
+    id: 413150
+"The Witcher 3: Wild Hunt":
+  cloud:
+    epic: true
+    gog: true
+    steam: true
+  files:
+    "<winDocuments>/The Witcher 3/*.settings":
+      tags:
+        - config
+      when:
+        - os: windows
+    "<winDocuments>/The Witcher 3/gamesaves/*.png":
+      tags:
+        - save
+      when:
+        - os: windows
+    "<winDocuments>/The Witcher 3/gamesaves/*.sav":
+      tags:
+        - save
+      when:
+        - os: windows
+  gog:
+    id: 1495134320
+  id:
+    gogExtra:
+      - 1207664643
+      - 1207664663
+      - 1427195509
+      - 1427206931
+      - 1430743168
+      - 1441199941
+      - 1441355562
+      - 1441620909
+      - 1636895344
+      - 1640424747
+    lutris: the-witcher-3-wild-hunt-game-of-the-year-edition
+    steamExtra:
+      - 355880
+      - 370000
+      - 370001
+      - 370002
+      - 370003
+      - 373950
+      - 373951
+      - 376390
+      - 376391
+      - 378640
+      - 378641
+      - 378642
+      - 378643
+      - 378644
+      - 378645
+      - 378646
+      - 378647
+      - 378648
+      - 378649
+      - 499450
+      - 2684660
+  installDir:
+    The Witcher 3: {}
+  launch:
+    "<base>/redprelauncher.exe":
+      - when:
+          - bit: 64
+            os: windows
+            store: steam
+  steam:
+    id: 292030
+Ultrakill:
+  cloud:
+    gog: true
+    steam: true
+  files:
+    "<root>/steamapps/common/ULTRAKILL/Saves":
+      tags:
+        - save
+      when:
+        - os: windows
+          store: steam
+        - os: linux
+          store: steam
+  gog:
+    id: 1476171749
+  id:
+    gogExtra:
+      - 1096258712
+    lutris: ultrakill
+    steamExtra:
+      - 1230260
+  installDir:
+    ULTRAKILL: {}
+  launch:
+    "<base>/ULTRAKILL.exe":
+      - when:
+          - os: windows
+            store: steam
+  registry:
+    HKEY_CURRENT_USER/Software/Hakita/ULTRAKILL:
+      tags:
+        - config
+  steam:
+    id: 1229490
+"Hitman: World of Assassination":
+  cloud:
+    epic: true
+    steam: true
+  files:
+    "<root>/userdata/<storeUserId>/1659040/remote":
+      tags:
+        - save
+      when:
+        - store: steam
+    "<winAppData>/IO Interactive/Epic/<storeUserId>/HITMAN3":
+      tags:
+        - save
+      when:
+        - os: windows
+          store: epic
+    "<winLocalAppData>/Packages/IOInteractiveAS.PC-HITMAN3-BaseGame_6h0y724g59e1w/SystemAppData/wgs":
+      tags:
+        - save
+      when:
+        - os: windows
+          store: microsoft
+  installDir:
+    HITMAN 3: {}
+  launch:
+    "<base>/Hitman WOA.app":
+      - when:
+          - os: mac
+            store: steam
+    "<base>/Launcher.exe":
+      - arguments: "-SKIP_LAUNCHER"
+        when:
+          - os: windows
+            store: steam
+      - when:
+          - os: windows
+            store: steam
+  registry:
+    HKEY_CURRENT_USER/Software/IO Interactive/HITMAN3:
+      tags:
+        - config
+  steam:
+    id: 1659040
