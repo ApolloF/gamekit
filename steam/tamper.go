@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// crackMarkers are files that cracks and Steam emulators (Goldberg/GSE,
+// crackMarkers are files that Steam emulators (Goldberg/GSE,
 // CODEX, RUNE, SmartSteamEmu, OnlineFix, …) drop into a game folder. A game
 // running on them talks to the emulator instead of Steam, so Steam Cloud
 // never sees its saves.
