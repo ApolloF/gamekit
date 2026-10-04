@@ -1,6 +1,6 @@
 // Package steam reads a Steam installation: where Steam is, its library
 // folders and installed games, which account is used on this PC, and
-// whether a game's folder was cracked or runs on a Steam emulator.
+// whether a game's folder has a modified Steam API DLL or runs on a Steam emulator.
 package steam
 
 import (
