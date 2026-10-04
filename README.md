@@ -5,7 +5,7 @@ Go packages for finding PC games on Windows, shared by [WaterLauncher](https://g
 | Package | What it does |
 |---|---|
 | `vdf` | Valve's KeyValues formats: text (`libraryfolders.vdf`, `appmanifest_*.acf`, `loginusers.vdf`, `localconfig.vdf`) and binary (`shortcuts.vdf`), read and written without disturbing what Steam put there |
-| `steam` | Where Steam is, its library folders and installed games, which account is used on this PC, whether a game is running, and whether a game's folder was cracked or runs on a Steam emulator (marker files, Goldberg's `steam_settings`, an unsigned `steam_api` DLL) |
+| `steam` | Where Steam is, its library folders and installed games, which account is used on this PC, whether a game is running, and whether a game's folder has a modified Steam API DLL or runs on a Steam emulator (marker files, Goldberg's `steam_settings`, an unsigned `steam_api` DLL) |
 | `ludusavi` | The community [Ludusavi manifest](https://github.com/mtkennerly/ludusavi-manifest): ~50,000 games with their Steam and GOG ids, install folder names, Windows save locations (including store folders such as Ubisoft Connect's `savegames`), and Steam Cloud and Ubisoft Connect cloud support. Parses the full file in under 100 ms |
 
 Every parser treats its input as untrusted: sizes are capped, nesting is bounded, and the parsers are fuzz-tested.

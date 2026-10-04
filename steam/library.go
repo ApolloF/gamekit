@@ -8,7 +8,7 @@ import (
 )
 
 // App is a game Steam installed: it has an appmanifest_<id>.acf in a library.
-// Copies installed outside Steam (a crack, a repack) have none.
+// Copies installed outside Steam (a standalone install, a backup) have none.
 type App struct {
 	ID        int
 	Name      string
