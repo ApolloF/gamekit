@@ -1,0 +1,16 @@
+# Go build and test output
+*.test
+*.out
+coverage.*
+
+# Editors
+.idea/
+.vscode/
+.DS_Store
+
+# Secrets (safety baseline)
+.env
+.env.*
+!.env.example
+*.token
+*.pem
