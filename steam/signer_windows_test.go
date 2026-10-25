@@ -152,3 +152,28 @@ func containsFold(list []string, sub string) bool {
 	}
 	return false
 }
+
+func TestSignatureReadersRejectBadInput(t *testing.T) {
+	dir := filepath.Join(t.TempDir(), "Program Files (x86)", "Spiel Ü 游戏")
+	unsigned := filepath.Join(dir, "steam_api64.dll")
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(unsigned, []byte("MZ not signed"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	for _, tc := range []struct{ desc, path string }{
+		{"empty", ""},
+		{"NUL in path", "bad\x00path.dll"},
+		{"missing", filepath.Join(dir, "missing.dll")},
+		{"unsigned, spaces and unicode", unsigned},
+		{"folder", dir},
+	} {
+		if trusted(tc.path) {
+			t.Errorf("%s: trusted(%q) = true", tc.desc, tc.path)
+		}
+		if s, ok := signerSubject(tc.path); ok {
+			t.Errorf("%s: signerSubject(%q) = %v", tc.desc, tc.path, s)
+		}
+	}
+}

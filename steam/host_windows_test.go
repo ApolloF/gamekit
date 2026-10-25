@@ -3,6 +3,7 @@ package steam
 import (
 	"os"
 	"path/filepath"
+	"sync"
 	"testing"
 )
 
@@ -42,4 +43,25 @@ func TestHostSmoke(t *testing.T) {
 	if Running(-1) {
 		t.Error("app -1 can't be running")
 	}
+}
+
+// Signed is called from several goroutines by the consumers; the cache must
+// hold up (run with -race) and give the same answer every time.
+func TestSignedConcurrent(t *testing.T) {
+	dir := filepath.Join(t.TempDir(), "Spiel Ü 游戏")
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	paths := []string{filepath.Join(dir, "steam_api.dll"), filepath.Join(dir, "steam_api64.dll"), filepath.Join(dir, "missing.dll")}
+	write(t, paths[0], "MZ one")
+	write(t, paths[1], "MZ two")
+	var wg sync.WaitGroup
+	for i := range 16 {
+		wg.Go(func() {
+			if p := paths[i%len(paths)]; Signed(p) {
+				t.Errorf("Signed(%q) = true", p)
+			}
+		})
+	}
+	wg.Wait()
 }

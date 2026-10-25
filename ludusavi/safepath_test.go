@@ -12,6 +12,9 @@ func TestParseRejectsTraversal(t *testing.T) {
 		ok   bool
 	}{
 		{"<winAppData>/Game/Saves", true},
+		{"<winAppData>", true},
+		{"<winDocuments>/My Games/Spiel Ü 游戏/Saves", true},
+		{"<winDocuments>/Spiel Ü/../../x", false},
 		{"<winDocuments>/My Games/G/<storeUserId>", true},
 		{"<winAppData>/Game/a..b", true},
 		{"<winAppData>/..hidden/x", true},
