@@ -74,7 +74,7 @@ func TestSignedBy(t *testing.T) {
 
 func TestSignerSubjectUnsigned(t *testing.T) {
 	p := filepath.Join(t.TempDir(), "a.dll")
-	if err := os.WriteFile(p, []byte("MZ not signed"), 0o644); err != nil {
+	if err := os.WriteFile(p, []byte("MZ not signed"), 0o600); err != nil {
 		t.Fatal(err)
 	}
 	if s, ok := signerSubject(p); ok {
@@ -86,7 +86,7 @@ func TestSignerSubjectUnsigned(t *testing.T) {
 // refuse it.
 func TestSignedRejectsNonValveSigner(t *testing.T) {
 	p := filepath.Join(os.Getenv("SystemRoot"), "System32", "kernel32.dll")
-	if _, err := os.Stat(p); err != nil {
+	if _, err := os.Stat(p); err != nil { //nolint:gosec // test inspects a fixed system file
 		t.Skip("no kernel32.dll")
 	}
 	s, ok := signerSubject(p)
@@ -156,10 +156,10 @@ func containsFold(list []string, sub string) bool {
 func TestSignatureReadersRejectBadInput(t *testing.T) {
 	dir := filepath.Join(t.TempDir(), "Program Files (x86)", "Spiel Ü 游戏")
 	unsigned := filepath.Join(dir, "steam_api64.dll")
-	if err := os.MkdirAll(dir, 0o755); err != nil {
+	if err := os.MkdirAll(dir, 0o750); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(unsigned, []byte("MZ not signed"), 0o644); err != nil {
+	if err := os.WriteFile(unsigned, []byte("MZ not signed"), 0o600); err != nil {
 		t.Fatal(err)
 	}
 	for _, tc := range []struct{ desc, path string }{

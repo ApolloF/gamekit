@@ -1,6 +1,7 @@
 package vdf
 
 import (
+	"encoding/binary"
 	"strings"
 	"testing"
 )
@@ -103,7 +104,7 @@ func sampleShortcuts() []byte {
 	str := func(k, v string) { b = append(append(append(append(b, BString), k...), 0), append([]byte(v), 0)...) }
 	i32 := func(k string, v uint32) {
 		b = append(append(append(b, BInt32), k...), 0)
-		b = append(b, byte(v), byte(v>>8), byte(v>>16), byte(v>>24))
+		b = binary.LittleEndian.AppendUint32(b, v)
 	}
 	open := func(k string) { b = append(append(append(b, BMap), k...), 0) }
 	end := func() { b = append(b, BEnd) }

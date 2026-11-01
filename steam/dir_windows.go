@@ -23,7 +23,7 @@ func Dir() string {
 			continue
 		}
 		v, _, err := key.GetStringValue(k.name)
-		key.Close()
+		_ = key.Close()
 		if d := clean(v); err == nil && d != "" && isDir(filepath.Join(d, "userdata")) {
 			return d
 		}

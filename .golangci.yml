@@ -1,0 +1,11 @@
+version: "2"
+
+linters:
+  default: standard
+  enable:
+    - errcheck
+    - gosec
+  settings:
+    gosec:
+      severity: medium
+      confidence: medium

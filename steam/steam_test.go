@@ -11,10 +11,10 @@ import (
 
 func write(t *testing.T, p, s string) {
 	t.Helper()
-	if err := os.MkdirAll(filepath.Dir(p), 0o755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(p), 0o750); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(p, []byte(s), 0o644); err != nil {
+	if err := os.WriteFile(p, []byte(s), 0o600); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -39,7 +39,7 @@ func TestAccounts(t *testing.T) {
 		"76561197960265731" { "AccountName" "gone" "Timestamp" "900" }
 	}`)
 	for _, acc := range []string{"1", "2"} {
-		if err := os.MkdirAll(filepath.Join(d, "userdata", acc), 0o755); err != nil {
+		if err := os.MkdirAll(filepath.Join(d, "userdata", acc), 0o750); err != nil {
 			t.Fatal(err)
 		}
 	}

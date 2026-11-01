@@ -2,6 +2,7 @@ package steam
 
 import (
 	"crypto/x509/pkix"
+	"math"
 	"os"
 	"slices"
 	"strconv"
@@ -21,13 +22,15 @@ func HostInfo() Host {
 	h := Host{Running: Running, Signed: Signed}
 	if k, err := registry.OpenKey(registry.CURRENT_USER, steamKey+`\ActiveProcess`, registry.QUERY_VALUE); err == nil {
 		if v, _, err := k.GetIntegerValue("ActiveUser"); err == nil {
-			h.ActiveUser = uint32(v)
+			if v <= math.MaxUint32 {
+				h.ActiveUser = uint32(v)
+			}
 		}
-		k.Close()
+		_ = k.Close()
 	}
 	if k, err := registry.OpenKey(registry.CURRENT_USER, steamKey, registry.QUERY_VALUE); err == nil {
 		h.AutoLogin, _, _ = k.GetStringValue("AutoLoginUser")
-		k.Close()
+		_ = k.Close()
 	}
 	return h
 }
@@ -36,8 +39,8 @@ func HostInfo() Host {
 func Running(appID int) bool {
 	if k, err := registry.OpenKey(registry.CURRENT_USER, steamKey, registry.QUERY_VALUE); err == nil {
 		v, _, err := k.GetIntegerValue("RunningAppID")
-		k.Close()
-		if err == nil && int(v) == appID {
+		_ = k.Close()
+		if err == nil && appID >= 0 && v == uint64(appID) {
 			return true
 		}
 	}
@@ -45,7 +48,7 @@ func Running(appID int) bool {
 	if err != nil {
 		return false
 	}
-	defer k.Close()
+	defer func() { _ = k.Close() }()
 	v, _, err := k.GetIntegerValue("Running")
 	return err == nil && v != 0
 }
@@ -66,7 +69,7 @@ var valveNames = []string{"Valve Corp.", "Valve"}
 // aren't, or are signed by someone else, and a patched one fails the hash
 // check. No revocation or network lookups.
 func Signed(path string) bool {
-	fi, err := os.Stat(path)
+	fi, err := os.Stat(path) //nolint:gosec // caller-supplied path, inspecting it is this function's job
 	if err != nil {
 		return false
 	}

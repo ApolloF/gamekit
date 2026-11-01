@@ -10,7 +10,9 @@ import (
 func TestSigned(t *testing.T) {
 	unsigned := filepath.Join(t.TempDir(), "steam_api64.dll")
 	write(t, unsigned, "MZ not really a DLL")
-	if Signed(unsigned) || Signed(unsigned) { // second call is served from the cache
+	first := Signed(unsigned)
+	second := Signed(unsigned) // served from the cache
+	if first || second {
 		t.Error("an unsigned file must not count as signed")
 	}
 	if Signed(filepath.Join(t.TempDir(), "missing.dll")) || Signed("bad\x00path") {
@@ -49,7 +51,7 @@ func TestHostSmoke(t *testing.T) {
 // hold up (run with -race) and give the same answer every time.
 func TestSignedConcurrent(t *testing.T) {
 	dir := filepath.Join(t.TempDir(), "Spiel Ü 游戏")
-	if err := os.MkdirAll(dir, 0o755); err != nil {
+	if err := os.MkdirAll(dir, 0o750); err != nil {
 		t.Fatal(err)
 	}
 	paths := []string{filepath.Join(dir, "steam_api.dll"), filepath.Join(dir, "steam_api64.dll"), filepath.Join(dir, "missing.dll")}

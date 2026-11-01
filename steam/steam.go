@@ -18,7 +18,7 @@ const IDBase = 76561197960265728
 func readVDF(p string) *vdf.Node { return vdf.ReadFile(p) }
 
 func isDir(p string) bool {
-	fi, err := os.Stat(p)
+	fi, err := os.Stat(p) //nolint:gosec // caller-supplied path, inspecting it is this function's job
 	return err == nil && fi.IsDir()
 }
 
