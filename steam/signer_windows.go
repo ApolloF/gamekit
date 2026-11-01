@@ -42,8 +42,8 @@ func signerSubject(path string) (pkix.Name, bool) {
 	if err != nil {
 		return pkix.Name{}, false
 	}
-	defer windows.CertCloseStore(store, 0)
-	defer procCryptMsgClose.Call(uintptr(msg))
+	defer func() { _ = windows.CertCloseStore(store, 0) }()
+	defer func() { _, _, _ = procCryptMsgClose.Call(uintptr(msg)) }()
 
 	var size uint32
 	if r, _, _ := procCryptMsgGetParam.Call(uintptr(msg), cmsgSignerInfoParam, 0, 0, uintptr(unsafe.Pointer(&size))); r == 0 || size < uint32(unsafe.Sizeof(signerInfo{})) {
@@ -59,7 +59,7 @@ func signerSubject(path string) (pkix.Name, bool) {
 	if err != nil {
 		return pkix.Name{}, false
 	}
-	defer windows.CertFreeCertificateContext(cert)
+	defer func() { _ = windows.CertFreeCertificateContext(cert) }()
 
 	// Clone: the parsed certificate points into its input, which is freed on return.
 	c, err := x509.ParseCertificate(slices.Clone(unsafe.Slice(cert.EncodedCert, cert.Length)))

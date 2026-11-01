@@ -142,11 +142,11 @@ func TestParseReal(t *testing.T) {
 	if p == "" {
 		t.Skip("LUDUSAVI_MANIFEST not set")
 	}
-	f, err := os.Open(p)
+	f, err := os.Open(p) //nolint:gosec // path comes from the test's own env var
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 	start := time.Now()
 	es, err := Parse(f)
 	if err != nil {

@@ -17,12 +17,12 @@ var update = flag.Bool("update", false, "rewrite the golden files in testdata")
 func golden(t *testing.T, p string, got []byte) {
 	t.Helper()
 	if *update {
-		if err := os.WriteFile(p, got, 0o644); err != nil {
+		if err := os.WriteFile(p, got, 0o600); err != nil {
 			t.Fatal(err)
 		}
 		return
 	}
-	want, err := os.ReadFile(p)
+	want, err := os.ReadFile(p) //nolint:gosec // test reads its own testdata
 	if err != nil {
 		t.Fatalf("%v (run go test -update to create it)", err)
 	}
@@ -56,7 +56,7 @@ func TestParseBinaryGolden(t *testing.T) {
 	}
 	for _, f := range files {
 		t.Run(filepath.Base(f), func(t *testing.T) {
-			in, err := os.ReadFile(f)
+			in, err := os.ReadFile(f) //nolint:gosec // test reads its own testdata
 			if err != nil {
 				t.Fatal(err)
 			}

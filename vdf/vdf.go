@@ -54,11 +54,11 @@ func (n *Node) Value(key string) string {
 
 // ReadFile parses the file at p; an empty node if it can't be read.
 func ReadFile(p string) *Node {
-	f, err := os.Open(p)
+	f, err := os.Open(p) //nolint:gosec // caller-supplied path, inspecting it is this function's job
 	if err != nil {
 		return newNode()
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 	return Parse(io.LimitReader(f, maxFile))
 }
 

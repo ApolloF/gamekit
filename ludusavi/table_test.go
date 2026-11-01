@@ -130,7 +130,7 @@ func TestParseGolden(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 	es, err := Parse(f)
 	if err != nil {
 		t.Fatal(err)
@@ -145,12 +145,12 @@ func TestParseGolden(t *testing.T) {
 	got := buf.Bytes()
 	p := filepath.Join("testdata", "manifest.golden.json")
 	if *update {
-		if err := os.WriteFile(p, got, 0o644); err != nil {
+		if err := os.WriteFile(p, got, 0o600); err != nil {
 			t.Fatal(err)
 		}
 		return
 	}
-	want, err := os.ReadFile(p)
+	want, err := os.ReadFile(p) //nolint:gosec // test reads its own testdata
 	if err != nil {
 		t.Fatalf("%v (run go test -update to create it)", err)
 	}

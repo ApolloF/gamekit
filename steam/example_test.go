@@ -43,13 +43,13 @@ func ExampleTampered() {
 		fmt.Println(err)
 		return
 	}
-	defer os.RemoveAll(dir)
-	_ = os.WriteFile(filepath.Join(dir, "steam_api64.dll"), []byte("MZ"), 0o644)
+	defer func() { _ = os.RemoveAll(dir) }()
+	_ = os.WriteFile(filepath.Join(dir, "steam_api64.dll"), []byte("MZ"), 0o600)
 
 	valveSigned := func(string) bool { return true } // steam.Signed in real use
 	fmt.Printf("%q\n", steam.Tampered(dir, valveSigned))
 
-	_ = os.WriteFile(filepath.Join(dir, "steam_emu.ini"), []byte("[Settings]"), 0o644)
+	_ = os.WriteFile(filepath.Join(dir, "steam_emu.ini"), []byte("[Settings]"), 0o600)
 	fmt.Printf("%q\n", steam.Tampered(dir, valveSigned))
 	// Output:
 	// ""

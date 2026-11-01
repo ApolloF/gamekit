@@ -22,7 +22,7 @@ func steamDir(t *testing.T, users string, userdata ...string) string {
 		write(t, filepath.Join(d, "config", "loginusers.vdf"), users)
 	}
 	for _, acc := range userdata {
-		if err := os.MkdirAll(filepath.Join(d, "userdata", acc), 0o755); err != nil {
+		if err := os.MkdirAll(filepath.Join(d, "userdata", acc), 0o750); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -229,12 +229,12 @@ func TestLibraryAppsGolden(t *testing.T) {
 	got = append(got, '\n')
 	p := filepath.Join("testdata", "library.golden")
 	if *update {
-		if err := os.WriteFile(p, got, 0o644); err != nil {
+		if err := os.WriteFile(p, got, 0o600); err != nil {
 			t.Fatal(err)
 		}
 		return
 	}
-	want, err := os.ReadFile(p)
+	want, err := os.ReadFile(p) //nolint:gosec // test reads its own testdata
 	if err != nil {
 		t.Fatalf("%v (run go test -update to create it)", err)
 	}
